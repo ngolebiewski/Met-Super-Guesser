@@ -1,0 +1,52 @@
+* {
+  border: 1px dotted red;
+}
+
+a {
+  color: limegreen;
+}
+html {
+  height:100%;
+}
+
+body {
+font-family: Futura, futura, helvetica, gill sans, sans-serif;
+min-height:100vh;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  width: 100%
+  background-color: blue;
+}
+
+header{
+  background-color: black;
+  color: white;
+  top: 0;
+  width: 100%;
+  text-align: center;
+  max-height: 10%;
+}
+
+h1{
+  font-size: 2em;
+  font-size: 8vw;
+  margin: 0px;
+}
+
+section {
+  height: 30vh;
+}
+
+footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
