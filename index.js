@@ -38,7 +38,7 @@ const state = {
 const getRandomInt = (max) => Math.floor(Math.random() * max); //via mdn @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
 
 // choose a department
-const metDepartments = [9, 11, 19, 21] 
+const metDepartments = [9, 11, 19] 
 /* departmentId - displayName
 21 -  Modern Art
 11 -  European Painting
@@ -104,10 +104,31 @@ const detailMaker = async (idArray) => {
   return superArray;
 } 
 
-const gamePlayerEngine = async () => {
-  if (state.allDepartmentArtworkIds[0] === undefined) state.allDepartmentArtworkIds = await fetchDeptObjects();
+const renderRightorWrong = (guess) => {
+  console.log(`guess`, guess);
+  const newGuess = guess;
+  const theCorrectArtwork = "art-guesser=one\r";
+  console.log(newGuess == theCorrectArtwork)
+  console.log(newGuess);
+  if (guess === theCorrectArtwork) {
+    alert(`That's the Right Answer!`);
+    state.score++;
+    gamePlayerEngine();
+  } else {
+      alert(`That's wrong, the answer was ${theCorrectArtwork}`);
+      gamePlayerEngine();
+    }
+}
 
+
+const gamePlayerEngine = async () => {
+  main.innerHTML = ``;
+  // if (state.allDepartmentArtworkIDs.objectIDs[0] === undefined) state.allDepartmentArtworkIds = await fetchDeptObjects();
+  if (firstGo) state.allDepartmentArtworkIds = await fetchDeptObjects();
+  else if ((state.score+1) % 13 === 0 ) state.allDepartmentArtworkIds = await fetchDeptObjects();
+  firstGo = false;
   state.fourArtworkIds = getRandomIds();
+  state.fourArtworkDatasets = [];
   
   let response = await fetch(`${baseURL}objects/${state.fourArtworkIds[0]}`);
   const artworkOne = await response.json();
@@ -135,7 +156,8 @@ const gamePlayerEngine = async () => {
   const artworkFour = await response.json();
   state.fourArtworkDatasets.push(artworkFour);
 
-  //I tried a forEach and map loop for hours, but kept on getting a promise back! so this was old school one by one stuff.
+  // RE: the above and how it's the same thing 4 times...
+  // I tried a forEach and map loop for hours, but kept on getting a promise back! 
 
   // const sectionImage = document.createElement(`section`)
   // main.replaceChildren(sectionImage);
@@ -144,16 +166,17 @@ const gamePlayerEngine = async () => {
   // //primaryImageSmall
   // console.log(state)
 
+  // make the Quiz Image really big as the background image on the page
   const theImage = state.fourArtworkDatasets[0].primaryImage
-  internalStyle.innerHTML = `.bg {background-image: url("${theImage}");}`
+  internalStyle.innerHTML = `.bg \{background-image: url("${theImage}");\}`
   ///////
 
+
   const radioBoxSet = document.createElement(`section`);
-  sectionImage.id = "guess-zone";
   main.appendChild(radioBoxSet);
   radioBoxSet.innerHTML = `  <form>
   <fieldset>
-    <legend>What artist made this?:</legend>
+    <legend>Which artist made this?:</legend>
   
     <div>
       <input type="radio" id="one" name="art-guesser" value="one" checked />
@@ -175,21 +198,47 @@ const gamePlayerEngine = async () => {
       <label for="four">${state.fourArtworkDatasets[3].artistDisplayName}</label>
     </div>
   </fieldset>
-  <button>Submit your choice</button>
+  <button>Submit your Guess</button>
 </form>`
+radioBoxSet.id = "guess-zone";
 
+
+// radioBoxSet.addEventListener(`submit`, (e) => {
+//   e.preventDefault();
+//   console.log(e.target)
+// })
+
+const form = document.querySelector("form");
+
+form.addEventListener(
+  "submit",
+  (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    let output = "";
+    for (const entry of data) {
+      output = `${output}${entry[0]}=${entry[1]}\r`;
+    }
+    console.log(output);
+    //art-guesser=two
+    renderRightorWrong(output);
+    
+  },
+  false,
+);
+
+
+
+console.log(`is this working??`);
+const footerScore = document.querySelector(`footer`);
+footerScore.innerHTML = `Your Score: <a>${state.score}</a> | Designed by <a href="http://nickgolebiewski.com">Nick Golebiewski</a> | Source on <a href="https://github.com/ngolebiewski/Met-Super-Guesser">GitHub</a>`
 }
 
 
 
 
 
-
-
-  
- 
-
-
+let firstGo = true
 gamePlayerEngine();
 
 
@@ -208,5 +257,3 @@ gamePlayerEngine();
 //Show all 4 images
   //fade out "wrong selections" with their meta Details overlaid
 //click ANYWHERE for next round
-
-
