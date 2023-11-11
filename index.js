@@ -1,5 +1,6 @@
 const baseURL = `https://collectionapi.metmuseum.org/public/collection/v1/`;
 const main = document.querySelector(`main`);
+const internalStyle = document.querySelector(`#bg`);
 
 
 /*
@@ -52,8 +53,8 @@ const getRandomDept = () =>{
 
 const fetchDeptObjects = async () => {
   // const response = await fetch(`${baseURL}objects?departmentIds=${getRandomDept()}`)
-  // const response = await fetch(`${baseURL}search?departmentId=${getRandomDept()}&hasImages=true&q=*`);
- const response = await fetch(`${baseURL}objects?departmentIds=21`) //for Testing
+  const response = await fetch(`${baseURL}search?departmentId=${getRandomDept()}&hasImages=true&q=*`);
+//  const response = await fetch(`${baseURL}objects?departmentIds=21`) //for Testing
   const allDepartmentArtworkIds  = await response.json();
   return allDepartmentArtworkIds;
 }
@@ -104,12 +105,23 @@ const detailMaker = async (idArray) => {
 } 
 
 const gamePlayerEngine = async () => {
-  state.allDepartmentArtworkIds = await fetchDeptObjects();
-  state.fourArtworkIds = getRandomIds();
+  if (state.allDepartmentArtworkIds[0] === undefined) state.allDepartmentArtworkIds = await fetchDeptObjects();
 
-  let response = await fetch(`${baseURL}objects/${state.fourArtworkIds[0]}`)
+  state.fourArtworkIds = getRandomIds();
+  
+  let response = await fetch(`${baseURL}objects/${state.fourArtworkIds[0]}`);
   const artworkOne = await response.json();
   state.fourArtworkDatasets.push(artworkOne);
+
+  let j = 0;
+  while ((state.fourArtworkDatasets[0].primaryImage.length < 4) && (j < 10)) {
+    state.fourArtworkIds = getRandomIds();
+    response = await fetch(`${baseURL}objects/${state.fourArtworkIds[0]}`);
+    const artworkOne = await response.json();
+    state.fourArtworkDatasets[0] = artworkOne;
+    j += 1;
+    console.log(j)
+  }
 
   response = await fetch(`${baseURL}objects/${state.fourArtworkIds[1]}`)
   const artworkTwo = await response.json();
@@ -125,13 +137,15 @@ const gamePlayerEngine = async () => {
 
   //I tried a forEach and map loop for hours, but kept on getting a promise back! so this was old school one by one stuff.
 
-  const sectionImage = document.createElement(`section`)
-  main.replaceChildren(sectionImage);
-  sectionImage.innerHTML = `<img src=${state.fourArtworkDatasets[0].primaryImage}>`
-  sectionImage.id = `image-zone`;
-  //primaryImageSmall
-  console.log(state)
+  // const sectionImage = document.createElement(`section`)
+  // main.replaceChildren(sectionImage);
+  // sectionImage.innerHTML = `<img src=${state.fourArtworkDatasets[0].primaryImage}>`
+  // sectionImage.id = `image-zone`;
+  // //primaryImageSmall
+  // console.log(state)
 
+  const theImage = state.fourArtworkDatasets[0].primaryImage
+  internalStyle.innerHTML = `.bg {background-image: url("${theImage}");}`
   ///////
 
   const radioBoxSet = document.createElement(`section`);
