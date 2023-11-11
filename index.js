@@ -52,8 +52,8 @@ const getRandomDept = () =>{
 
 const fetchDeptObjects = async () => {
   // const response = await fetch(`${baseURL}objects?departmentIds=${getRandomDept()}`)
-  const response = await fetch(`${baseURL}search?departmentId=${getRandomDept()}&hasImages=true&q=*`);
-  // const response = await fetch(`${baseURL}objects?departmentIds=11`) //for Testing
+  // const response = await fetch(`${baseURL}search?departmentId=${getRandomDept()}&hasImages=true&q=*`);
+ const response = await fetch(`${baseURL}objects?departmentIds=21`) //for Testing
   const allDepartmentArtworkIds  = await response.json();
   return allDepartmentArtworkIds;
 }
@@ -113,31 +113,57 @@ const gamePlayerEngine = async () => {
 
   response = await fetch(`${baseURL}objects/${state.fourArtworkIds[1]}`)
   const artworkTwo = await response.json();
-  state.fourArtworkDatasets.push(artworkOne);
+  state.fourArtworkDatasets.push(artworkTwo);
 
   response = await fetch(`${baseURL}objects/${state.fourArtworkIds[2]}`)
   const artworkThree = await response.json();
-  state.fourArtworkDatasets.push(artworkOne);
+  state.fourArtworkDatasets.push(artworkThree);
 
   response = await fetch(`${baseURL}objects/${state.fourArtworkIds[3]}`)
   const artworkFour = await response.json();
-  state.fourArtworkDatasets.push(artworkOne);
+  state.fourArtworkDatasets.push(artworkFour);
 
-
-  // state.fourArtworkDatasets = await detailMaker(state.fourArtworkIds)
-  // console.log(state)
-
-  //   // for (let i = 0; i < 10000000; i++) {
-//   //   let b = 0;
-//   //   b +=1
-//   // };
+  //I tried a forEach and map loop for hours, but kept on getting a promise back! so this was old school one by one stuff.
 
   const sectionImage = document.createElement(`section`)
-  sectionImage.id = `image-zone`;
   main.replaceChildren(sectionImage);
   sectionImage.innerHTML = `<img src=${state.fourArtworkDatasets[0].primaryImage}>`
+  sectionImage.id = `image-zone`;
   //primaryImageSmall
-console.log(state)
+  console.log(state)
+
+  ///////
+
+  const radioBoxSet = document.createElement(`section`);
+  sectionImage.id = "guess-zone";
+  main.appendChild(radioBoxSet);
+  radioBoxSet.innerHTML = `  <form>
+  <fieldset>
+    <legend>What artist made this?:</legend>
+  
+    <div>
+      <input type="radio" id="one" name="art-guesser" value="one" checked />
+      <label for="one">${state.fourArtworkDatasets[0].artistDisplayName}</label>
+    </div>
+  
+    <div>
+      <input type="radio" id="two" name="art-guesser" value="two" />
+      <label for="two">${state.fourArtworkDatasets[1].artistDisplayName}</label>
+    </div>
+  
+    <div>
+      <input type="radio" id="three" name="art-guesser" value="three" />
+      <label for="three">${state.fourArtworkDatasets[2].artistDisplayName}</label>
+    </div>
+
+    <div>
+      <input type="radio" id="four" name="art-guesser" value="four" />
+      <label for="four">${state.fourArtworkDatasets[3].artistDisplayName}</label>
+    </div>
+  </fieldset>
+  <button>Submit your choice</button>
+</form>`
+
 }
 
 
