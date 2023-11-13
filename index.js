@@ -30,7 +30,9 @@ const state = {
   allDepartmentArtworkIds: [],
   fourArtworkIds: [],
   fourArtworkDatasets: [],
-  score: 0
+  resortedFourArtworkDatasets: [],
+  score: 0,
+  rightAnswer: ''
 }
 
 
@@ -105,20 +107,33 @@ const detailMaker = async (idArray) => {
 } 
 
 const renderRightorWrong = (guess) => {
-  console.log(`guess`, guess);
-  const newGuess = guess;
-  const theCorrectArtwork = "art-guesser=one\r";
-  console.log(newGuess == theCorrectArtwork)
-  console.log(newGuess);
-  if (guess === theCorrectArtwork) {
-    alert(`That's the Right Answer!`);
+  // console.log(`guess`, guess);
+  // const newGuess = guess;
+  // const theCorrectArtwork = "art-guesser=one\r";
+  // console.log(newGuess == theCorrectArtwork)
+  // console.log(newGuess);
+  if (guess === state.rightAnswer) {
+    alert(`Yes! ${state.rightAnswer} is the Right Answer!`);
     state.score++;
     gamePlayerEngine();
   } else {
-      alert(`That's wrong, the answer was ${theCorrectArtwork}`);
+      alert(`Sorry ${guess} is wrong, the answer is ${state.rightAnswer}`);
       gamePlayerEngine();
     }
 }
+
+//Fisher Yates Algorithm for randomly resorting an array
+const resortedChoices = (fourChoicesArray) => {
+  const fourChoicesCopy = fourChoicesArray.slice();
+  for (i = fourChoicesCopy.length-1; i>0; i--) {
+    let j = Math.floor(Math.random() * (i+1));
+    let k = fourChoicesCopy[i];
+    fourChoicesCopy[i] = fourChoicesCopy[j];
+    fourChoicesCopy[j] = k;
+  }
+  return fourChoicesCopy;
+}
+
 
 
 const gamePlayerEngine = async () => {
@@ -129,13 +144,15 @@ const gamePlayerEngine = async () => {
   firstGo = false;
   state.fourArtworkIds = getRandomIds();
   state.fourArtworkDatasets = [];
+  state.resortedFourArtworkDatasetsourArtworkDatasets = [];
   
   let response = await fetch(`${baseURL}objects/${state.fourArtworkIds[0]}`);
   const artworkOne = await response.json();
   state.fourArtworkDatasets.push(artworkOne);
 
   let j = 0;
-  while ((state.fourArtworkDatasets[0].primaryImage.length < 4) && (j < 10)) {
+  // while (((state.fourArtworkDatasets[0] === undefined) || (state.fourArtworkDatasets[0].primaryImage.length < 4)) && (j < 10)) {
+  while ((state.fourArtworkDatasets[0] === undefined) && (j < 10)) {
     state.fourArtworkIds = getRandomIds();
     response = await fetch(`${baseURL}objects/${state.fourArtworkIds[0]}`);
     const artworkOne = await response.json();
@@ -167,42 +184,53 @@ const gamePlayerEngine = async () => {
   // console.log(state)
 
   // make the Quiz Image really big as the background image on the page
-  const theImage = state.fourArtworkDatasets[0].primaryImage
-  internalStyle.innerHTML = `.bg \{background-image: url("${theImage}");\}`
+  const theImage = state.fourArtworkDatasets[0].primaryImage;
+  internalStyle.innerHTML = `.bg \{background-image: url("${theImage}");\}`;
   ///////
+  
+  state.rightAnswer = state.fourArtworkDatasets[0].artistDisplayName;
+
+  //resort the choices so that the answer isn't always in slot one
+
+  state.resortedFourArtworkDatasets = resortedChoices(state.fourArtworkDatasets);
+
+  let choiceZero = state.resortedFourArtworkDatasets[0].artistDisplayName;
+  let choiceOne = state.resortedFourArtworkDatasets[1].artistDisplayName;
+  let choiceTwo = state.resortedFourArtworkDatasets[2].artistDisplayName;
+  let choiceThree = state.resortedFourArtworkDatasets[3].artistDisplayName;
 
 
   const radioBoxSet = document.createElement(`section`);
   main.appendChild(radioBoxSet);
   radioBoxSet.innerHTML = `  <form>
   <fieldset>
-    <legend>Which artist made this?:</legend>
+    <legend>Which artist made this?</legend>
   
     <div>
-      <input type="radio" id="one" name="art-guesser" value="one" checked />
-      <label for="one">${state.fourArtworkDatasets[0].artistDisplayName}</label>
+      <input type="radio" id="one" name="art-guesser" value="${choiceZero}" checked />
+      <label for="one">${state.resortedFourArtworkDatasets[0].artistDisplayName}</label>
     </div>
   
     <div>
-      <input type="radio" id="two" name="art-guesser" value="two" />
-      <label for="two">${state.fourArtworkDatasets[1].artistDisplayName}</label>
+      <input type="radio" id="two" name="art-guesser" value="${choiceOne}" />
+      <label for="two">${state.resortedFourArtworkDatasets[1].artistDisplayName}</label>
     </div>
   
     <div>
-      <input type="radio" id="three" name="art-guesser" value="three" />
-      <label for="three">${state.fourArtworkDatasets[2].artistDisplayName}</label>
+      <input type="radio" id="three" name="art-guesser" value="${choiceTwo}" />
+      <label for="three">${state.resortedFourArtworkDatasets[2].artistDisplayName}</label>
     </div>
 
     <div>
-      <input type="radio" id="four" name="art-guesser" value="four" />
-      <label for="four">${state.fourArtworkDatasets[3].artistDisplayName}</label>
+      <input type="radio" id="four" name="art-guesser" value="${choiceThree}" />
+      <label for="four">${state.resortedFourArtworkDatasets[3].artistDisplayName}</label>
     </div>
   </fieldset>
   <button>Submit your Guess</button>
 </form>`
 radioBoxSet.id = "guess-zone";
 
-
+internalStyle.innerHTML = `.bg \{background-image: url("${theImage}");\}`;
 // radioBoxSet.addEventListener(`submit`, (e) => {
 //   e.preventDefault();
 //   console.log(e.target)
@@ -217,10 +245,10 @@ form.addEventListener(
     const data = new FormData(form);
     let output = "";
     for (const entry of data) {
-      output = `${output}${entry[0]}=${entry[1]}\r`;
+      // output = `${output}${entry[0]}=${entry[1]}\r`;
+      output = entry[1];
     }
     console.log(output);
-    //art-guesser=two
     renderRightorWrong(output);
     
   },
@@ -229,9 +257,10 @@ form.addEventListener(
 
 
 
-console.log(`is this working??`);
 const footerScore = document.querySelector(`footer`);
-footerScore.innerHTML = `Your Score: <a>${state.score}</a> | Designed by <a href="http://nickgolebiewski.com">Nick Golebiewski</a> | Source on <a href="https://github.com/ngolebiewski/Met-Super-Guesser">GitHub</a>`
+footerScore.innerHTML = `
+Your Score: <a>${state.score}</a> | Designed by <a href="http://nickgolebiewski.com">Nick Golebiewski</a> | Source on <a href="https://github.com/ngolebiewski/Met-Super-Guesser">GitHub</a>`
+internalStyle.innerHTML = `.bg \{background-image: url("${theImage}");\}`;
 }
 
 

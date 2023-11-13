@@ -2,13 +2,18 @@
   border: 1px dotted red;
 } */
 
+
 .bg {
   height: 100%;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  z-index: -3;
   }
 
+i {
+  font-size: .7em;
+}
 a {
   color: limegreen;
 }
@@ -19,12 +24,15 @@ html {
 body {
 font-family: Futura, futura, helvetica, gill sans, sans-serif;
 min-height:100vh;
+z-index: 3;
 }
 
 main {
   display: flex;
   flex-direction: column;
+  flex-flow: nowrap;
   width: 100%;
+  /* background-color: rgba(0, 255, 0, .5); */
 }
 
 header{
@@ -52,6 +60,12 @@ img {
 section {
   height: 60vh;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: space-around;
+  align-items: center;
+  justify-content: center;
 }
 
 #image-zone {
@@ -64,14 +78,13 @@ section {
 } */
 
 #guess-zone {
-  background-color: rgba(255, 255, 230, .8);
-  width: fit-content;
-  display: flex;
+  margin-top: 20vh;
 }
 
 form {
-  background-color: rgba(255, 255, 230, .8);
+  background-color: rgba(0, 0, 0, .9);
   width: fit-content;
+  color: white;
 ;}
 
 footer {
@@ -82,6 +95,6 @@ footer {
   background-color: black;
   color: white;
   text-align: center;
-  padding: 10px;
+  padding-bottom: 10px;
   font-size: 1em;
 }
