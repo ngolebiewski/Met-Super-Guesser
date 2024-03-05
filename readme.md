@@ -17,11 +17,11 @@ It's a multiple choice guessing game pulling wonderfully random artworks from th
 
 You guess the artist that made the artwork.
 
--It works by randomly choosing one of those three departments (image and artist heavy). They usually run for 13 correct guesses before switching to a new one. Or just refresh the browser.
--Then through getting all the artwork ids, it randomly selects 4 and makes sure there's actually an image associated with it.
--Why 4? To get real "wrong answers" to post along with the correct one.
--Next up randomly sorting those 4 choices with an algorithm I researched called the Fisher Yates Algorithm
--Then you get to make your guess.
+- It works by randomly choosing one of those three departments (image and artist heavy). They usually run for 13 correct guesses before switching to a new one. Or just refresh the browser.
+- Then through getting all the artwork ids, it randomly selects 4 and makes sure there's actually an image associated with it.
+- Why 4? To get real "wrong answers" to post along with the correct one.
+- Next up randomly sorting those 4 choices with an algorithm I researched called the *Fisher Yates Algorithm*
+- Then you get to make your guess.
 
 I'm just excited to see some of the 500,000 objects in the collection take up a full screen, whether it be a watercolor painting from the 1800s of hills in North Wales, a photo that Neil Armstrong took while on the moon, or an oil painting by Rembrandt.
 
