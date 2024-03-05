@@ -2,15 +2,14 @@ const baseURL = `https://collectionapi.metmuseum.org/public/collection/v1/`;
 const main = document.querySelector(`main`);
 const internalStyle = document.querySelector(`#bg`);
 
-
 /*
+data keys from API
 city - string
 medium - string
 objectDate -string
 objectBeginDate - int
 artistDisplayName - string
 title - string
-
 primaryImage - string - URL to image jpeg
 objectID
 */
@@ -19,7 +18,7 @@ objectID
 Search for something generic + has an image
 https://collectionapi.metmuseum.org/public/collection/v1/search?departmentId=9&hasImages=true&q=drawing
 
-
+Basic selects anything with an image, supposedly
 https://collectionapi.metmuseum.org/public/collection/v1/search?departmentId=9&hasImages=true&q=*
 
 Get all object numbers from a Department
@@ -37,12 +36,12 @@ const state = {
 
 
 //return a num in range 0 to one less than max
-const getRandomInt = (max) => Math.floor(Math.random() * max); //via mdn @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+const getRandomInt = (max) => Math.floor(Math.random() * max); 
 
 // choose a department
 const metDepartments = [9, 11, 19] 
 /* departmentId - displayName
-21 -  Modern Art
+21 -  Modern Art // not many images here dur to image rights
 11 -  European Painting
 9 -   Drawings and Prints
 19 -  Photographs
@@ -53,12 +52,14 @@ const getRandomDept = () =>{
   return metDepartments[randomIndex];
 }
 
+//Gets a list of artwork IDs from the Met API
 const fetchDeptObjects = async () => {
-  // const response = await fetch(`${baseURL}objects?departmentIds=${getRandomDept()}`)
-  const response = await fetch(`${baseURL}search?departmentId=${getRandomDept()}&hasImages=true&q=*`);
-//  const response = await fetch(`${baseURL}objects?departmentIds=21`) //for Testing
+  try {const response = await fetch(`${baseURL}search?departmentId=${getRandomDept()}&hasImages=true&q=*`);
   const allDepartmentArtworkIds  = await response.json();
   return allDepartmentArtworkIds;
+  } catch (error){
+      console.log(error);
+  }
 }
 
 const getRandomIds = () =>{
@@ -71,32 +72,13 @@ const getRandomIds = () =>{
   return fourArtworkIds;
 }
 
-// const getArtworkDatabyID = async (artID) => {
-//   console.log(artID);
-//   const response = await fetch(`${baseURL}objects/${artID}`)
-//   const artDetails = await response.json();
-//   console.log(artDetails);
-//   return await artDetails;
-// }
-
-
-// const getArtworkDatasets = async () => {
-//   state.fourArtworkIds.map(async (artID) => {
-//     console.log(artID);
-//     const response = await fetch(`${baseURL}objects/${artID}`)
-//     const artDetails = await response.json();
-//     console.log(artDetails);
-//     return artDetails;
-//   });
-// }
-
-// const gamePlayerEngine = async () => {
-//   state.allDepartmentArtworkIds = await fetchDeptObjects();
-//   state.fourArtworkIds = getRandomIds();
-//   console.log(state, 'hi');
-//   state.fourArtworkDatasets = await getArtworkDatasets();
-//   console.log(state.fourArtworkDatasets);
-// }
+const getArtworkDatasets = async () => {
+  return state.fourArtworkIds.map(async (artID) => {
+    const response = await fetch(`${baseURL}objects/${artID}`)
+    const artDetails = await response.json();
+    return artDetails;
+ });
+}
 
 const detailMaker = async (idArray) => {
   const superArray = idArray.map(async (idNum) => {
@@ -107,11 +89,6 @@ const detailMaker = async (idArray) => {
 } 
 
 const renderRightorWrong = (guess) => {
-  // console.log(`guess`, guess);
-  // const newGuess = guess;
-  // const theCorrectArtwork = "art-guesser=one\r";
-  // console.log(newGuess == theCorrectArtwork)
-  // console.log(newGuess);
   if (guess === state.rightAnswer) {
     alert(`Yes! ${state.rightAnswer} is the Right Answer!`);
     state.score++;
@@ -134,11 +111,8 @@ const resortedChoices = (fourChoicesArray) => {
   return fourChoicesCopy;
 }
 
-
-
 const gamePlayerEngine = async () => {
   main.innerHTML = ``;
-  // if (state.allDepartmentArtworkIDs.objectIDs[0] === undefined) state.allDepartmentArtworkIds = await fetchDeptObjects();
   if (firstGo) state.allDepartmentArtworkIds = await fetchDeptObjects();
   else if ((state.score+1) % 13 === 0 ) state.allDepartmentArtworkIds = await fetchDeptObjects();
   firstGo = false;
@@ -151,8 +125,7 @@ const gamePlayerEngine = async () => {
   state.fourArtworkDatasets.push(artworkOne);
 
   let j = 0;
-  // while (((state.fourArtworkDatasets[0] === undefined) || (state.fourArtworkDatasets[0].primaryImage.length < 4)) && (j < 10)) {
-  while ((state.fourArtworkDatasets[0] === undefined) && (j < 10)) {
+  while (((state.fourArtworkDatasets[0] === undefined) || (state.fourArtworkDatasets[0].primaryImage.length < 4)) && (j < 10)) {
     state.fourArtworkIds = getRandomIds();
     response = await fetch(`${baseURL}objects/${state.fourArtworkIds[0]}`);
     const artworkOne = await response.json();
@@ -173,25 +146,13 @@ const gamePlayerEngine = async () => {
   const artworkFour = await response.json();
   state.fourArtworkDatasets.push(artworkFour);
 
-  // RE: the above and how it's the same thing 4 times...
-  // I tried a forEach and map loop for hours, but kept on getting a promise back! 
-
-  // const sectionImage = document.createElement(`section`)
-  // main.replaceChildren(sectionImage);
-  // sectionImage.innerHTML = `<img src=${state.fourArtworkDatasets[0].primaryImage}>`
-  // sectionImage.id = `image-zone`;
-  // //primaryImageSmall
-  // console.log(state)
-
   // make the Quiz Image really big as the background image on the page
   const theImage = state.fourArtworkDatasets[0].primaryImage;
   internalStyle.innerHTML = `.bg \{background-image: url("${theImage}");\}`;
-  ///////
   
   state.rightAnswer = state.fourArtworkDatasets[0].artistDisplayName;
 
   //resort the choices so that the answer isn't always in slot one
-
   state.resortedFourArtworkDatasets = resortedChoices(state.fourArtworkDatasets);
 
   let choiceZero = state.resortedFourArtworkDatasets[0].artistDisplayName;
@@ -231,10 +192,6 @@ const gamePlayerEngine = async () => {
 radioBoxSet.id = "guess-zone";
 
 internalStyle.innerHTML = `.bg \{background-image: url("${theImage}");\}`;
-// radioBoxSet.addEventListener(`submit`, (e) => {
-//   e.preventDefault();
-//   console.log(e.target)
-// })
 
 const form = document.querySelector("form");
 
@@ -245,7 +202,6 @@ form.addEventListener(
     const data = new FormData(form);
     let output = "";
     for (const entry of data) {
-      // output = `${output}${entry[0]}=${entry[1]}\r`;
       output = entry[1];
     }
     console.log(output);
@@ -256,7 +212,6 @@ form.addEventListener(
 );
 
 
-
 const footerScore = document.querySelector(`footer`);
 footerScore.innerHTML = `
 Your Score: <a>${state.score}</a> | Designed by <a href="http://nickgolebiewski.com">Nick Golebiewski</a> | Source on <a href="https://github.com/ngolebiewski/Met-Super-Guesser">GitHub</a>`
@@ -264,25 +219,5 @@ internalStyle.innerHTML = `.bg \{background-image: url("${theImage}");\}`;
 }
 
 
-
-
-
 let firstGo = true
 gamePlayerEngine();
-
-
-////GUESSING VIEW//////
-//get one of the departments that have a lot of "guessable images"
-//get 4 random objects from that department
-  //randomly choose one as the 'mainSelection'
-  //could be 1, 2, 3 or 4 -- this way the multiple choice is mixed
-//display image from the "mainSelection" object
-//randomly choose datapoint (i.e. artist name) to guess
-  //display that datapoint for each artwork as MC
-    //radiobox form with submit button
-//if choose right one get a point
-
-///////NEW VIEW///////
-//Show all 4 images
-  //fade out "wrong selections" with their meta Details overlaid
-//click ANYWHERE for next round
